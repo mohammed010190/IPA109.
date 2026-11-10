@@ -17,6 +17,8 @@ struct IPA109App: App {
             TabView {
                 NavigationStack { ChatScreen(projectID: nil) }
                     .tabItem { Label("إنشاء", systemImage: "sparkles") }
+                NavigationStack { CodeImportScreen() }
+                    .tabItem { Label("من كود", systemImage: "chevron.left.forwardslash.chevron.right") }
                 NavigationStack { ProjectsScreen() }
                     .tabItem { Label("مشاريعي", systemImage: "square.stack.3d.up") }
                 NavigationStack { SettingsScreen() }
