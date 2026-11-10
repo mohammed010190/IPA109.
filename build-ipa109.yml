@@ -1,0 +1,27 @@
+name: Build IPA109 for SideStore
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Build unsigned IPA109
+        run: |
+          set -euo pipefail
+          cd IPA109
+          xcodegen generate
+          xcodebuild -project IPA109.xcodeproj -scheme IPA109 -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY='' clean build
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/IPA109.app Payload/
+          zip -qry IPA109.ipa Payload
+      - name: Publish IPA109 release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ipa109-builder-${{ github.run_number }}
+        run: |
+          gh release create "$RELEASE_TAG" IPA109/IPA109.ipa --title "IPA109 Builder $RELEASE_TAG" --notes "Unsigned IPA for installation with SideStore."

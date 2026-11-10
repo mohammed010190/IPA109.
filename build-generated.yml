@@ -1,0 +1,43 @@
+name: Build generated app IPA
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Unique release tag
+        required: true
+        type: string
+      project_id:
+        description: Project identifier
+        required: true
+        type: string
+      title:
+        description: App name
+        required: true
+        type: string
+permissions:
+  contents: write
+jobs:
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Build generated app as unsigned IPA
+        env:
+          PROJECT_ID: ${{ inputs.project_id }}
+        run: |
+          set -euo pipefail
+          cd GeneratedApp
+          xcodegen generate
+          xcodebuild -project GeneratedApp.xcodeproj -scheme GeneratedApp -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY='' "PRODUCT_BUNDLE_IDENTIFIER=com.ipa109.generated.${PROJECT_ID}" clean build
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/GeneratedApp.app Payload/
+          zip -qry GeneratedApp.ipa Payload
+      - name: Publish the app IPA
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+          APP_TITLE: ${{ inputs.title }}
+        run: |
+          gh release create "$RELEASE_TAG" GeneratedApp/GeneratedApp.ipa --title "$APP_TITLE — IPA109" --notes "Unsigned IPA. Install with SideStore."
