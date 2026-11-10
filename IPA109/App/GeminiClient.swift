@@ -15,7 +15,7 @@ struct GeminiClient {
             "contents": [["role": "user", "parts": [["text": prompt]]]],
             "generationConfig": ["responseMimeType": "application/json", "temperature": 0.35]
         ]
-        let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent")!
+let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent")!
         var http = URLRequest(url: url)
         http.httpMethod = "POST"
         http.timeoutInterval = 100
