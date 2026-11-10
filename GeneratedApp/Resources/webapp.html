@@ -1,2 +1,106 @@
-<!doctype html>
-<html lang="ar" dir="rtl"><head><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" /><meta charset="utf-8"/><style>body{background:#0d1225;color:#fff;font-family:-apple-system,system-ui;text-align:center;padding:20vh 16px}h1{font-size:32px;color:#9988ff}</style></head><body><h1>تطبيقك الأول</h1><p>أنشئ تطبيقاً داخل IPA109 ثم صدّره من جديد.</p></body></html>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CERT109 — البحث التلقائي</title>
+<style>
+:root{color-scheme:dark;--bg:#081222;--card:#13243b;--border:#2a4968;--text:#eaf5ff;--muted:#a6bed3;--cyan:#39d7f4}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px system-ui,-apple-system,Tahoma,Arial,sans-serif;line-height:1.65}
+main{max-width:720px;margin:auto;padding:calc(env(safe-area-inset-top) + 18px) 17px calc(env(safe-area-inset-bottom) + 30px)}h1{margin:4px 0 0;text-align:center;font-size:30px;color:var(--cyan)}h2{font-size:18px;margin:0 0 9px}.sub{text-align:center;color:var(--muted);margin:0 0 22px}
+.card{border:1px solid var(--border);border-radius:18px;background:var(--card);padding:17px;margin:14px 0;overflow-wrap:anywhere}
+button,.action{border:0;background:#233b59;color:var(--text);padding:12px 15px;border-radius:12px;font:inherit;cursor:pointer;display:inline-block;text-decoration:none}
+.main{width:100%;background:linear-gradient(100deg,#22d7f2,#9470f9);color:#041327;font-weight:800;font-size:17px;padding:16px}
+button:disabled{opacity:.6;cursor:wait}.hint,.small{font-size:13px;color:var(--muted)}.notice{font-size:13px;color:#ffdc9a}.item{border-top:1px solid var(--border);padding:12px 0}.item:first-child{border-top:0}.name{font-weight:750;color:#fff}.meta{font-size:12px;color:#a9c2d6}.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.links a{font-size:13px;padding:8px 10px;background:#234667;color:#d7f6ff;border-radius:9px;text-decoration:none}
+#results[hidden],#certResult[hidden]{display:none}#status{margin-top:12px;color:#cde4f7}input[type=file]{width:100%;font:inherit;color:var(--text);padding:10px 0}
+.ok{color:#68e7af}.warn{color:#ffda8b}
+</style>
+</head>
+<body>
+<main>
+<h1>🛡️ CERT109</h1>
+<p class="sub">البحث عن مصادر شهادات Apple بدون كتابة أي اسم</p>
+<section class="card">
+<h2>بحث تلقائي عن المصادر</h2>
+<p>اضغط الزر وسيبحث البرنامج عن مستودعات عامة مرتبطة بشهادات توقيع iOS. لا تحتاج تعرف أسماء الشركات أو الشهادات.</p>
+<button id="scan" class="main">🔎 ابدأ البحث التلقائي</button>
+<div id="status" role="status" aria-live="polite">جاهز للبحث.</div>
+<div id="results" hidden></div>
+<p class="notice">النتائج مصادر محتملة وليست شهادات مؤكدة أو شهادات صالحة للتثبيت. لا يمكن التحقق من الإلغاء أو ملكية المفتاح الخاص من نتائج البحث.</p>
+</section>
+<section class="card">
+<h2>بحث Google الجاهز — بدون كتابة</h2>
+<p class="small">اختر أحد الأزرار. تفتح نتائج Google مباشرة بالعبارة المناسبة.</p>
+<div class="links" id="googleLinks"></div>
+</section>
+<section class="card">
+<h2>فحص تاريخ شهادة عندك</h2>
+<p class="small">إذا حصلت على ملف شهادة عامة، اختره لعرض تاريخ بداية وانتهاء صلاحيته محليًا. لا ترفع أي مفتاح خاص أو ملف P12 إلى مواقع مجهولة.</p>
+<input id="cert" type="file" accept=".cer,.crt,.der,.pem" aria-label="اختر شهادة عامة">
+<div id="certResult" hidden></div>
+</section>
+<p class="small">البحث الآلي في المستودعات العامة يتم باستخدام GitHub API المجاني وله حدود استخدام. Google يفتح صفحات البحث ولا يمكن جمع نتائجه تلقائيًا داخل هذا الملف دون خدمة بحث مصرح بها. الشهادة وحدها لا تكفي لتوقيع IPA، ولا نعتمد على شهادات خاصة بالغير.</p>
+</main>
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+const searches = [
+ ['Apple Distribution','"Apple Distribution" certificate iOS'],
+ ['iOS Development','"Apple Development" certificate iOS'],
+ ['iOS Enterprise','iOS enterprise distribution certificate'],
+ ['ملفات التوقيع','ios provisioning profile signing certificate'],
+ ['مواقع عامة','Apple iOS signing certificate .cer -site:apple.com']
+];
+for (const [title,query] of searches) {
+ const a=document.createElement('a');
+ a.textContent=title;
+ a.href='https://www.google.com/search?q='+encodeURIComponent(query);
+ a.rel='noopener noreferrer';a.target='_self';
+ $('googleLinks').appendChild(a);
+}
+const queries = [
+ 'ios signing certificate in:name,description,readme',
+ 'apple distribution certificate in:name,description,readme',
+ 'ios provisioning profile in:name,description,readme'
+];
+function makeResult(item) {
+ const card=document.createElement('div'); card.className='item';
+ const name=document.createElement('div');name.className='name';name.textContent=item.full_name;card.appendChild(name);
+ const desc=document.createElement('div');desc.className='meta';desc.textContent=(item.description||'مستودع عام — لا يوجد وصف').slice(0,220);card.appendChild(desc);
+ const link=document.createElement('a');link.href=item.html_url;link.textContent='فتح المستودع ↗';link.className='action';link.target='_self';link.rel='noopener noreferrer';link.style.marginTop='8px';card.appendChild(link);
+ return card;
+}
+$('scan').addEventListener('click',async()=>{
+ const btn=$('scan');btn.disabled=true;$('results').hidden=true;$('results').replaceChildren();$('status').textContent='جاري البحث في المستودعات العامة…';
+ const found=new Map(),errors=[];
+ for(let i=0;i<queries.length;i++) {
+  $('status').textContent='جاري البحث '+(i+1)+' من '+queries.length+'…';
+  try {
+   const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),12000);
+   let response;
+   try {response=await fetch('https://api.github.com/search/repositories?q='+encodeURIComponent(queries[i])+'&per_page=12&sort=updated',{headers:{Accept:'application/vnd.github+json'},signal:controller.signal});}
+   finally {clearTimeout(timer)}
+   if(!response.ok){errors.push(response.status===403||response.status===429?'بلغ GitHub حدّ الطلبات المجانية':'تعذر البحث: HTTP '+response.status);continue}
+   const json=await response.json();
+   for(const item of (json.items||[])){if(item.full_name&&item.html_url)found.set(item.id,item)}
+  }catch(e){errors.push('تعذر الاتصال بـ GitHub من التطبيق أو الشبكة');}
+ }
+ const arr=[...found.values()];
+ if(arr.length){$('status').textContent='عُثر على '+arr.length+' مستودعًا عامًا ذا صلة. افحص محتوى كل مصدر قبل الاعتماد عليه.';const frag=document.createDocumentFragment();for(const item of arr)frag.appendChild(makeResult(item));$('results').appendChild(frag);$('results').hidden=false;}
+ else{$('status').textContent='لم يمكن جلب نتائج آلية. استخدم أزرار بحث Google أدناه.'}
+ if(errors.length){const p=document.createElement('p');p.className='notice';p.textContent=[...new Set(errors)].join(' — ');$('results').appendChild(p);$('results').hidden=false}
+ btn.disabled=false;
+});
+function tlv(b,pos){if(pos+2>b.length)throw Error('الملف غير مكتمل');const tag=b[pos++];let len=b[pos++];if(len&128){const count=len&127;if(count<1||count>4)throw Error('صيغة غير مدعومة');len=0;for(let i=0;i<count;i++){if(pos>=b.length)throw Error('الملف غير مكتمل');len=len*256+b[pos++]}}if(pos+len>b.length)throw Error('الملف غير مكتمل');return{tag,start:pos,next:pos+len}}
+function dateFrom(b,node){if(node.tag!==0x17&&node.tag!==0x18)throw Error('صيغة تاريخ غير مدعومة');const s=String.fromCharCode(...b.slice(node.start,node.next));const isUTC=node.tag===0x17;const n=isUTC?2:4;const y0=Number(s.slice(0,n));const y=isUTC?(y0>=50?1900+y0:2000+y0):y0;const m=Number(s.slice(n,n+2)),d=Number(s.slice(n+2,n+4)),h=Number(s.slice(n+4,n+6)),mm=Number(s.slice(n+6,n+8)),ss=Number(s.slice(n+8,n+10))||0;if(!s.endsWith('Z')||m<1||m>12||d<1||d>31||h>23||mm>59||ss>59)throw Error('التاريخ غير مدعوم');const out=new Date(Date.UTC(y,m-1,d,h,mm,ss));if(isNaN(out.getTime()))throw Error('التاريخ غير صالح');return out}
+$('cert').addEventListener('change',async(e)=>{
+ const file=e.target.files?.[0];if(!file)return;const box=$('certResult');box.hidden=false;box.className='small';box.textContent='جاري فحص تاريخ الشهادة…';
+ try{
+  if(file.size>3000000)throw Error('الملف كبير جدًا');let b=new Uint8Array(await file.arrayBuffer());const start=String.fromCharCode(...b.slice(0,Math.min(b.length,80)));
+  if(start.includes('-----BEGIN CERTIFICATE-----')){const text=new TextDecoder().decode(b);const mat=text.match(/-----BEGIN CERTIFICATE-----([\s\S]*?)-----END CERTIFICATE-----/);if(!mat)throw Error('ملف PEM غير صالح');b=Uint8Array.from(atob(mat[1].replace(/\s/g,'')),c=>c.charCodeAt(0))}
+  const root=tlv(b,0);if(root.tag!==0x30)throw Error('ليس ملف شهادة X.509');const tbs=tlv(b,root.start);if(tbs.tag!==0x30)throw Error('تنسيق شهادة غير صحيح');let at=tbs.start;let v=tlv(b,at);if(v.tag===0xA0)at=v.next;const serial=tlv(b,at),sig=tlv(b,serial.next),issuer=tlv(b,sig.next),validity=tlv(b,issuer.next);if(validity.tag!==0x30)throw Error('تعذر تحديد تاريخ الشهادة');const d1=tlv(b,validity.start),d2=tlv(b,d1.next),notBefore=dateFrom(b,d1),notAfter=dateFrom(b,d2);const now=Date.now();const state=now<notBefore.getTime()?'لم تبدأ الصلاحية':now>notAfter.getTime()?'منتهية بالتاريخ':'غير منتهية بالتاريخ فقط';box.textContent='الملف: '+file.name+'\nالحالة: '+state+'\nمن: '+notBefore.toLocaleString('ar-SA')+'\nإلى: '+notAfter.toLocaleString('ar-SA')+'\nملاحظة: هذا لا يتحقق من الإلغاء أو صلاحية التوقيع أو ملكية المفتاح الخاص.';box.style.whiteSpace='pre-wrap';
+ }catch(err){box.textContent='تعذر فحص الشهادة: '+err.message}
+});
+</script>
+</body>
+</html>
