@@ -1,2 +1,569 @@
 <!doctype html>
-<html lang="ar" dir="rtl"><head><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" /><meta charset="utf-8"/><style>body{background:#0d1225;color:#fff;font-family:-apple-system,system-ui;text-align:center;padding:20vh 16px}h1{font-size:32px;color:#9988ff}</style></head><body><h1>تطبيقك الأول</h1><p>أنشئ تطبيقاً داخل IPA109 ثم صدّره من جديد.</p></body></html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#071426">
+<title>109C4 — الباحث الذكي عن الوظائف</title>
+<style>
+:root{
+  --bg:#071426;--panel:#0d2039;--panel2:#102947;--line:#24496e;
+  --blue:#168bff;--cyan:#28d7ff;--purple:#8b5cf6;--text:#f5f9ff;
+  --muted:#a9bfd8;--green:#31d69a;--danger:#ff6b7a;
+  --shadow:0 16px 45px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:radial-gradient(ellipse at 15% 0%,#102e59 0,transparent 36%),radial-gradient(ellipse at 100% 25%,#24154e 0,transparent 30%),var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif}
+body{padding-bottom:calc(86px + env(safe-area-inset-bottom));}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{width:min(100%,760px);margin:auto;min-height:100vh;padding:env(safe-area-inset-top) 14px 24px}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:15px 2px 18px;gap:12px}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.logo{width:48px;height:48px;border-radius:15px;background:linear-gradient(145deg,#14c9ff,#1556d9 58%,#853cff);display:grid;place-items:center;box-shadow:0 0 25px #147bff66;border:1px solid #83dfff77;flex:none}
+.logo svg{width:31px;height:31px}
+.brandname{font-size:23px;font-weight:900;letter-spacing:.4px}
+.tagline{font-size:11px;color:#8fdfff;letter-spacing:1.5px;margin-top:2px}
+.iconbtn{width:42px;height:42px;border:1px solid var(--line);border-radius:13px;background:#0c1d34;color:var(--text);display:grid;place-items:center}
+.iconbtn svg{width:20px;height:20px}
+.page{display:none;animation:fade .18s ease}
+.page.active{display:block}
+@keyframes fade{from{opacity:.4;transform:translateY(5px)}to{opacity:1;transform:none}}
+.hero{padding:22px 18px 20px;border:1px solid #2b5c91;border-radius:23px;background:linear-gradient(135deg,#102c50dd,#0c1c34ee 62%,#24134aee);box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hero:before{content:"";position:absolute;width:190px;height:190px;border-radius:50%;background:#168bff30;filter:blur(35px);top:-90px;left:-55px}
+.hero h1{font-size:25px;line-height:1.35;margin:0 0 7px;position:relative}
+.hero p{margin:0;color:#bed1e7;line-height:1.8;font-size:13px;position:relative}
+.sectionhead{display:flex;align-items:center;justify-content:space-between;margin:22px 2px 12px;gap:10px}
+.sectionhead h2{font-size:17px;margin:0}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.searchbox{margin-top:17px;display:grid;gap:10px}
+.field{display:flex;align-items:center;gap:9px;background:#07182d;border:1px solid #31577d;border-radius:14px;padding:0 13px;min-height:49px}
+.field svg{width:19px;height:19px;color:#4acbff;flex:none}
+.field input,.field select{width:100%;border:0;outline:0;background:transparent;color:var(--text);padding:13px 0;min-width:0}
+.field input::placeholder{color:#7893b1}
+.field select option{background:#0d2039;color:white}
+.row{display:flex;gap:9px}
+.row>*{flex:1;min-width:0}
+.btn{border:0;border-radius:14px;padding:13px 16px;font-weight:750;color:white;background:linear-gradient(100deg,#087df2,#16b8ef);box-shadow:0 8px 24px #087df233;min-height:47px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.secondary{background:#142c49;border:1px solid #365c82;box-shadow:none}
+.btn.ghost{background:transparent;border:1px solid #3a638c;box-shadow:none;color:#d9efff}
+.btn.purple{background:linear-gradient(100deg,#6543df,#9a49e8)}
+.btn.full{width:100%}
+.chips{display:flex;gap:8px;overflow:auto;padding:2px 0 4px}
+.chip{white-space:nowrap;border:1px solid #31577d;border-radius:999px;padding:8px 12px;background:#0b1d34;color:#c8ddf3;font-size:12px}
+.chip.active{background:#123c67;border-color:#25a9ff;color:#fff}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:14px}
+.stat{background:#0d2039;border:1px solid #24496e;border-radius:14px;padding:12px;text-align:center}
+.stat b{font-size:19px;display:block;color:#69dfff}
+.stat span{font-size:11px;color:var(--muted)}
+.card{background:linear-gradient(145deg,#102944,#0b1b30);border:1px solid #2b5279;border-radius:18px;padding:15px;margin:10px 0;box-shadow:0 8px 22px #0002}
+.jobtop{display:flex;align-items:flex-start;gap:11px}
+.companylogo{width:43px;height:43px;border-radius:13px;background:linear-gradient(145deg,#174e82,#172a55);display:grid;place-items:center;color:#80ddff;flex:none}
+.companylogo svg{width:23px;height:23px}
+.jobmain{flex:1;min-width:0}
+.jobtitle{font-size:16px;font-weight:800;margin:0 0 4px}
+.company{font-size:12px;color:#b7cce2}
+.jobmeta{display:flex;flex-wrap:wrap;gap:9px 14px;color:#b2c8df;font-size:11px;margin-top:12px}
+.jobmeta span{display:flex;align-items:center;gap:4px}
+.jobmeta svg{width:14px;height:14px;color:#55cfff}
+.jobactions{display:flex;gap:8px;margin-top:13px}
+.jobactions button{flex:1;min-height:39px;padding:9px 10px;font-size:12px}
+.favorite{border:1px solid #355a80;background:#0c2038;color:#cce7ff;border-radius:12px;width:40px;height:40px;display:grid;place-items:center;flex:none}
+.favorite.on{color:#ff6caa;border-color:#a83b75;background:#321b39}
+.badge{font-size:10px;color:#8af4c7;background:#103d39;border:1px solid #246c60;padding:4px 8px;border-radius:99px;white-space:nowrap}
+.empty{border:1px dashed #365d83;border-radius:17px;padding:24px 16px;text-align:center;color:var(--muted);line-height:1.8;background:#0b1b30aa}
+.empty svg{width:34px;height:34px;color:#57cfff;margin-bottom:8px}
+.bottomnav{position:fixed;z-index:20;bottom:0;left:0;right:0;padding:9px 12px calc(9px + env(safe-area-inset-bottom));background:#071426ee;backdrop-filter:blur(18px);border-top:1px solid #28496a}
+.navinner{width:min(100%,720px);margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.navitem{border:0;background:transparent;color:#92aeca;border-radius:13px;padding:7px 2px 5px;display:grid;justify-items:center;gap:3px;font-size:10px}
+.navitem svg{width:21px;height:21px}
+.navitem.active{background:#123b62;color:#65e1ff}
+.pagehead{display:flex;align-items:center;gap:10px;margin:7px 0 17px}
+.pagehead h1{font-size:22px;margin:0;flex:1}
+.backbtn{display:flex;align-items:center;gap:6px;border:1px solid #345a80;background:#102641;color:#e5f5ff;padding:9px 12px;border-radius:12px}
+.backbtn svg{width:17px;height:17px}
+.formbox{background:#0d2039;border:1px solid #294f76;border-radius:18px;padding:16px;margin:12px 0}
+.formbox h3{font-size:16px;margin:0 0 13px}
+.label{font-size:12px;color:#b5cbe1;display:block;margin:11px 0 6px}
+.input{width:100%;border:1px solid #31577d;border-radius:12px;background:#07182d;color:white;padding:13px;outline:0}
+.input:focus{border-color:#28bfff;box-shadow:0 0 0 3px #28bfff22}
+textarea.input{min-height:95px;resize:vertical}
+.notice{border:1px solid #725c2a;background:#302713;color:#f5d58a;border-radius:12px;padding:11px;font-size:12px;line-height:1.7;margin:12px 0}
+.success{border-color:#236b57;background:#10352e;color:#9cf1d1}
+.profileline{display:flex;align-items:center;gap:12px}
+.avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(140deg,#00bdf5,#7751e8);display:grid;place-items:center;font-weight:900;font-size:20px}
+.filebox{border:1px dashed #4b7297;border-radius:14px;padding:15px;text-align:center;background:#091b30}
+.filebox input{max-width:100%;margin-top:10px;color:#cfe2f5}
+.modalback{position:fixed;inset:0;background:#020814c9;z-index:40;display:none;align-items:flex-end;justify-content:center;padding:12px}
+.modalback.show{display:flex}
+.modal{width:min(100%,650px);max-height:86vh;overflow:auto;background:#0c2038;border:1px solid #3a628a;border-radius:22px;padding:17px;box-shadow:0 25px 70px #0009}
+.modalhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.modalhead h2{font-size:18px;margin:0}
+.toast{position:fixed;z-index:60;bottom:calc(92px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:#183653;border:1px solid #4a83b3;color:#fff;padding:11px 15px;border-radius:12px;max-width:calc(100% - 30px);font-size:12px;box-shadow:var(--shadow);display:none}
+.toast.show{display:block;animation:fade .2s}
+hr{border:0;border-top:1px solid #284b6c;margin:14px 0}
+a{color:#75dfff}
+@media(min-width:620px){.searchbox{grid-template-columns:1fr 1fr}.searchbox .wide{grid-column:1/-1}.jobactions button{max-width:180px}.hero{padding:28px}.app{padding-left:22px;padding-right:22px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 11h18M10 12h4"/>
+          <circle cx="17.5" cy="16.5" r="3.2" stroke="#53e7ff"/><path d="m20 19 2 2" stroke="#53e7ff"/>
+        </svg>
+      </div>
+      <div><div class="brandname">109C4</div><div class="tagline">SMART JOB FINDER</div></div>
+    </div>
+    <button class="iconbtn" id="helpBtn" aria-label="المساعدة" title="المساعدة">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.6 9a2.5 2.5 0 1 1 4.4 1.6c-1.1 1.1-2 1.4-2 3M12 17h.01"/></svg>
+    </button>
+  </header>
+
+  <main>
+    <section class="page active" id="page-home">
+      <div class="hero">
+        <h1>وظيفتك القادمة تبدأ من هنا</h1>
+        <p>ابحث عن الوظائف الجديدة، اكتشف الشركات التي تستقبل السير الذاتية، وتابع تقديماتك من مكان واحد.</p>
+        <div class="searchbox">
+          <label class="field wide">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10.8" cy="10.8" r="7.2"/><path d="m16 16 5 5"/></svg>
+            <input id="homeQuery" placeholder="المسمى الوظيفي — مثال: محاسب" autocomplete="off">
+          </label>
+          <label class="field">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            <select id="homeRegion"><option value="">كل مناطق السعودية</option><option>الرياض</option><option>جدة</option><option>مكة المكرمة</option><option>المدينة المنورة</option><option>الدمام</option><option>الخبر</option><option>الظهران</option><option>الأحساء</option><option>القصيم</option><option>تبوك</option><option>أبها</option><option>جازان</option><option>حائل</option><option>نجران</option><option>الجوف</option><option>الحدود الشمالية</option></select>
+          </label>
+          <label class="field">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            <select id="homeDays"><option value="7">آخر 7 أيام</option><option value="1">آخر 24 ساعة</option><option value="3">آخر 3 أيام</option><option value="14">آخر 14 يومًا</option><option value="30">آخر 30 يومًا</option><option value="90">آخر 3 أشهر</option></select>
+          </label>
+          <button class="btn wide" id="homeSearch">ابحث عن الوظائف</button>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat"><b id="favCount">0</b><span>وظائف مفضلة</span></div>
+        <div class="stat"><b id="searchCount">0</b><span>عمليات بحث</span></div>
+        <div class="stat"><b id="cvStatus">—</b><span>السيرة الذاتية</span></div>
+      </div>
+      <div class="sectionhead"><h2>آخر عمليات البحث</h2><button class="chip" id="viewHistory">عرض السجل</button></div>
+      <div id="recentSearches" class="empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><br>
+        لم تبدأ البحث بعد. اكتب المسمى الوظيفي والمنطقة للبدء.
+      </div>
+      <div class="notice">ملاحظة: نتائج الوظائف الحقيقية تحتاج ربط مصدر بيانات أو واجهة API موثوقة. لن نعرض إعلانات وهمية على أنها وظائف حقيقية.</div>
+    </section>
+
+    <section class="page" id="page-search">
+      <div class="pagehead"><button class="backbtn" data-back><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>رجوع</button><h1>نتائج البحث</h1></div>
+      <div class="card">
+        <div class="field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10.8" cy="10.8" r="7.2"/><path d="m16 16 5 5"/></svg><input id="resultQuery" placeholder="المسمى الوظيفي"></div>
+        <div class="row" style="margin-top:9px">
+          <div class="field"><select id="resultRegion"><option value="">كل المناطق</option><option>الرياض</option><option>جدة</option><option>مكة المكرمة</option><option>المدينة المنورة</option><option>الدمام</option><option>الخبر</option><option>الأحساء</option><option>القصيم</option></select></div>
+          <div class="field"><select id="resultDays"><option value="7">7 أيام</option><option value="1">24 ساعة</option><option value="3">3 أيام</option><option value="14">14 يومًا</option><option value="30">30 يومًا</option></select></div>
+        </div>
+        <button class="btn full" id="resultSearch" style="margin-top:9px">تحديث البحث</button>
+      </div>
+      <div class="sectionhead"><h2 id="resultsTitle">الوظائف</h2><span class="small muted" id="resultsCount">0 نتيجة</span></div>
+      <div id="jobsList"><div class="empty">أدخل المسمى الوظيفي واضغط بحث.</div></div>
+    </section>
+
+    <section class="page" id="page-favorites">
+      <div class="pagehead"><button class="backbtn" data-back><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>رجوع</button><h1>الوظائف المفضلة</h1></div>
+      <div id="favoritesList"></div>
+    </section>
+
+    <section class="page" id="page-history">
+      <div class="pagehead"><button class="backbtn" data-back><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>رجوع</button><h1>سجل البحث</h1></div>
+      <div id="historyList"></div>
+      <button class="btn ghost full" id="clearHistory">مسح سجل البحث</button>
+    </section>
+
+    <section class="page" id="page-profile">
+      <div class="pagehead"><button class="backbtn" data-back><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>رجوع</button><h1>حسابي</h1></div>
+      <div id="signedInPanel" class="formbox" style="display:none">
+        <div class="profileline"><div class="avatar" id="avatarLetter">م</div><div><b id="userEmail">حسابك</b><div class="small muted">بياناتك محفوظة في هذا الجهاز</div></div></div>
+        <hr>
+        <button class="btn secondary full" id="signOutBtn">تسجيل الخروج</button>
+      </div>
+      <div id="authPanel" class="formbox">
+        <h3>تسجيل الدخول أو إنشاء حساب</h3>
+        <label class="label">البريد الإلكتروني</label><input class="input" id="authEmail" type="email" placeholder="name@example.com" autocomplete="email">
+        <label class="label">كلمة المرور</label><input class="input" id="authPassword" type="password" placeholder="6 أحرف على الأقل" autocomplete="current-password">
+        <div class="row" style="margin-top:13px"><button class="btn" id="loginBtn">دخول</button><button class="btn secondary" id="registerBtn">إنشاء حساب</button></div>
+        <button class="btn ghost full" id="googleBtn" style="margin-top:9px">المتابعة باستخدام Google</button>
+        <div class="small muted" style="line-height:1.7;margin-top:10px">يلزم إعداد Firebase في الكود لتفعيل الحسابات السحابية. دون الإعداد، لا يتم إنشاء حساب وهمي.</div>
+      </div>
+      <div class="formbox">
+        <h3>السيرة الذاتية (CV)</h3>
+        <div class="filebox">
+          <div id="cvName">لم يتم اختيار ملف بعد</div>
+          <div class="small muted">PDF أو DOC أو DOCX</div>
+          <input type="file" id="cvFile" accept=".pdf,.doc,.docx,application/pdf">
+          <button class="btn secondary full" id="saveCvBtn" style="margin-top:10px">حفظ السيرة الذاتية</button>
+        </div>
+        <div class="small muted" id="cvHint" style="margin-top:10px">يحفظ الملف محليًا في هذا النموذج. التخزين السحابي يتطلب إعداد Firebase Storage.</div>
+      </div>
+      <div class="formbox">
+        <h3>ربط البريد لإعداد مسودات التقديم</h3>
+        <p class="small muted" style="line-height:1.8;margin-top:0">عند إعداد Google OAuth بصلاحية Gmail Compose يمكن إنشاء مسودة وإرفاق CV تلقائيًا، ثم تراجعها وترسلها بنفسك.</p>
+        <button class="btn purple full" id="connectGmail">ربط Gmail وإنشاء مسودات</button>
+        <div class="small muted" style="margin-top:9px">يتطلب Google OAuth Client ID مخصصًا للتطبيق وتفعيل Gmail API. لا نطلب كلمة مرور بريدك.</div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<nav class="bottomnav" aria-label="التنقل الرئيسي">
+  <div class="navinner">
+    <button class="navitem active" data-page="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></svg>الرئيسية</button>
+    <button class="navitem" data-page="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.8" cy="10.8" r="7.2"/><path d="m16 16 5 5"/></svg>البحث</button>
+    <button class="navitem" data-page="favorites"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.8 8.8c0 5.2-8.8 11-8.8 11s-8.8-5.8-8.8-11A4.8 4.8 0 0 1 12 6.4a4.8 4.8 0 0 1 8.8 2.4Z"/></svg>المفضلة</button>
+    <button class="navitem" data-page="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>حسابي</button>
+  </div>
+</nav>
+
+<div class="modalback" id="detailModal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modalhead"><h2 id="detailTitle">تفاصيل الوظيفة</h2><button class="iconbtn" id="closeDetail" aria-label="إغلاق">×</button></div>
+    <div id="detailContent"></div>
+  </div>
+</div>
+<div class="modalback" id="helpModal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modalhead"><h2>مساعدة 109C4</h2><button class="iconbtn" id="closeHelp" aria-label="إغلاق">×</button></div>
+    <p class="muted" style="line-height:1.9">استخدم البحث لإدخال المسمى والمنطقة. احفظ الوظائف المهمة في المفضلة. من صفحة حسابي تستطيع إضافة سيرتك الذاتية وربط بريدك بعد إعداد صلاحيات OAuth.</p>
+    <button class="btn full" id="helpOk">حسنًا</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script type="module">
+/*
+  109C4 — إعدادات الربط:
+  1) ضع إعدادات Firebase Web App في FIREBASE_CONFIG.
+  2) ضع Google OAuth Web Client ID في GOOGLE_OAUTH_CLIENT_ID.
+  3) ضع رابط API الخاص بمصدر الوظائف في JOBS_API_URL.
+  لا تضع مفاتيح سرية أو كلمات مرور في هذا الملف.
+*/
+const FIREBASE_CONFIG = {
+  apiKey: "YOUR_FIREBASE_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_FIREBASE_APP_ID"
+};
+const GOOGLE_OAUTH_CLIENT_ID = "YOUR_GOOGLE_OAUTH_CLIENT_ID";
+const JOBS_API_URL = ""; // مثال: https://api.yourdomain.com/jobs
+
+const $ = (id) => document.getElementById(id);
+const state = {
+  page:"home", stack:[], jobs:[], selectedJob:null, selectedCV:null,
+  favorites:JSON.parse(localStorage.getItem("109c4_favorites")||"[]"),
+  history:JSON.parse(localStorage.getItem("109c4_history")||"[]"),
+  gmailToken:null, firebase:null, auth:null, db:null, storage:null, user:null,
+  searchController:null
+};
+const iconBuilding = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="3" width="7" height="18" rx="1"/><rect x="13" y="7" width="7" height="14" rx="1"/><path d="M7 7h1M7 11h1M7 15h1M16 11h1M16 15h1"/></svg>';
+const iconPin = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>';
+const iconClock = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+function toast(message){const el=$("toast");el.textContent=message;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),3200)}
+function esc(s=""){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function persist(){
+  localStorage.setItem("109c4_favorites",JSON.stringify(state.favorites));
+  localStorage.setItem("109c4_history",JSON.stringify(state.history));
+  updateStats();
+  if(state.user&&state.db)syncFavoritesToCloud();
+}
+function updateStats(){$("favCount").textContent=state.favorites.length;$("searchCount").textContent=state.history.length;$("cvStatus").textContent=localStorage.getItem("109c4_cv_name")?"جاهزة":"—"}
+function setPage(page,push=true){
+  if(!document.getElementById("page-"+page))page="home";
+  if(push && page!==state.page){state.stack.push(state.page);history.pushState({page},"","#"+page)}
+  state.page=page;
+  document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id==="page-"+page));
+  document.querySelectorAll(".navitem").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
+  if(page==="favorites")renderFavorites();
+  if(page==="history")renderHistory();
+  if(page==="profile")refreshAuthUI();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function goBack(){
+  if($("detailModal").classList.contains("show")){closeModal("detailModal");return}
+  if($("helpModal").classList.contains("show")){closeModal("helpModal");return}
+  if(state.stack.length){history.back();return}
+  setPage("home",false);
+}
+window.addEventListener("popstate",()=>{
+  if($("detailModal").classList.contains("show")){$("detailModal").classList.remove("show");return}
+  if($("helpModal").classList.contains("show")){$("helpModal").classList.remove("show");return}
+  if(state.stack.length){const previous=state.stack.pop();setPage(previous,false);return}
+  setPage("home",false);
+});
+document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>setPage(b.dataset.page)));
+document.querySelectorAll("[data-back]").forEach(b=>b.addEventListener("click",goBack));
+function openModal(id){$(id).classList.add("show");history.pushState({modal:id},"","#"+id)}
+function closeModal(id){
+  if(!$(id).classList.contains("show"))return;
+  if(history.state?.modal===id){history.back()}
+  else{$(id).classList.remove("show")}
+}
+$("closeDetail").onclick=()=>closeModal("detailModal");
+$("closeHelp").onclick=()=>closeModal("helpModal");
+$("helpOk").onclick=()=>closeModal("helpModal");
+$("helpBtn").onclick=()=>openModal("helpModal");
+$("detailModal").addEventListener("click",e=>{if(e.target===$("detailModal"))closeModal("detailModal")});
+$("helpModal").addEventListener("click",e=>{if(e.target===$("helpModal"))closeModal("helpModal")});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){if($("detailModal").classList.contains("show"))closeModal("detailModal");else if($("helpModal").classList.contains("show"))closeModal("helpModal")}});
+$("viewHistory").onclick=()=>setPage("history");
+function recordSearch(q,region,days){
+  state.history.unshift({q,region,days,date:new Date().toISOString()});
+  state.history=state.history.slice(0,30);persist();renderRecent();
+}
+function renderRecent(){
+  const el=$("recentSearches");
+  if(!state.history.length){el.className="empty";el.innerHTML='لم تبدأ البحث بعد. اكتب المسمى الوظيفي والمنطقة للبدء.';return}
+  el.className="";
+  el.innerHTML=state.history.slice(0,4).map((h,i)=>`<button class="chip" style="margin:4px" data-recent="${i}">${esc(h.q)} · ${esc(h.region||"كل المناطق")}</button>`).join("");
+  el.querySelectorAll("[data-recent]").forEach(b=>b.onclick=()=>{const h=state.history[+b.dataset.recent];$("homeQuery").value=h.q;$("homeRegion").value=h.region;$("homeDays").value=h.days;runSearch(h.q,h.region,h.days)});
+}
+function jobId(job){return String(job.id||job.url||[job.company,job.title,job.location].join("|"))}
+function isFav(job){return state.favorites.some(x=>jobId(x)===jobId(job))}
+function renderJob(job){
+  const id=esc(jobId(job)),title=esc(job.title||"مسمى غير محدد"),company=esc(job.company||job.companyName||"الشركة غير محددة"),location=esc(job.location||job.city||"الموقع غير محدد"),date=esc(job.postedAt||job.date||"تاريخ الإعلان غير متاح");
+  const email=job.email||job.contactEmail||"";
+  return `<article class="card">
+    <div class="jobtop"><div class="companylogo">${iconBuilding}</div><div class="jobmain"><div class="jobtitle">${title}</div><div class="company">${company}</div></div>
+    <button class="favorite ${isFav(job)?"on":""}" data-fav="${id}" aria-label="حفظ في المفضلة">${isFav(job)?"♥":"♡"}</button></div>
+    <div class="jobmeta"><span>${iconPin}${location}</span><span>${iconClock}${date}</span></div>
+    <div class="jobactions"><button class="btn" data-detail="${id}">التفاصيل</button><button class="btn secondary" data-apply="${id}" ${email?"":"disabled"}>${email?"تقديم بالبريد":"لا يوجد بريد معلن"}</button></div>
+  </article>`;
+}
+function attachJobEvents(container){
+  container.querySelectorAll("[data-fav]").forEach(b=>b.onclick=()=>{
+    const id=b.dataset.fav,job=state.jobs.find(j=>jobId(j)===id)||state.favorites.find(j=>jobId(j)===id);
+    if(!job)return;
+    if(isFav(job))state.favorites=state.favorites.filter(j=>jobId(j)!==id);else state.favorites.unshift(job);
+    persist();renderJobs();renderFavorites();toast(isFav(job)?"أضيفت إلى المفضلة":"أزيلت من المفضلة");
+  });
+  container.querySelectorAll("[data-detail]").forEach(b=>b.onclick=()=>showJob(state.jobs.find(j=>jobId(j)===b.dataset.detail)||state.favorites.find(j=>jobId(j)===b.dataset.detail)));
+  container.querySelectorAll("[data-apply]").forEach(b=>b.onclick=()=>applyJob(state.jobs.find(j=>jobId(j)===b.dataset.apply)||state.favorites.find(j=>jobId(j)===b.dataset.apply)));
+}
+function renderJobs(){
+  const el=$("jobsList");
+  if(!state.jobs.length){el.innerHTML='<div class="empty">لا توجد نتائج لعرضها. نفّذ بحثًا جديدًا أو تأكد من إعداد مصدر الوظائف.</div>';$("resultsCount").textContent="0 نتيجة";return}
+  const sorted=[...state.jobs].sort((a,b)=>new Date(b.postedAt||b.date||0)-new Date(a.postedAt||a.date||0));
+  el.innerHTML=sorted.map(renderJob).join("");$("resultsCount").textContent=sorted.length+" نتيجة";attachJobEvents(el);
+}
+function renderFavorites(){
+  const el=$("favoritesList");
+  if(!state.favorites.length){el.innerHTML='<div class="empty">لم تحفظ أي وظيفة بعد. اضغط علامة القلب في بطاقة الوظيفة لإضافتها هنا.</div>';return}
+  el.innerHTML=state.favorites.map(renderJob).join("");attachJobEvents(el);
+}
+function renderHistory(){
+  const el=$("historyList");
+  if(!state.history.length){el.innerHTML='<div class="empty">لا يوجد سجل بحث حتى الآن.</div>';return}
+  el.innerHTML=state.history.map((h,i)=>`<div class="card"><b>${esc(h.q)}</b><div class="jobmeta"><span>${iconPin}${esc(h.region||"كل المناطق")}</span><span>${iconClock}${new Date(h.date).toLocaleString("ar-SA")}</span></div><button class="btn secondary full" style="margin-top:12px" data-replay="${i}">إعادة البحث</button></div>`).join("");
+  el.querySelectorAll("[data-replay]").forEach(b=>b.onclick=()=>{const h=state.history[+b.dataset.replay];$("resultQuery").value=h.q;$("resultRegion").value=h.region;$("resultDays").value=h.days;setPage("search");runSearch(h.q,h.region,h.days)});
+}
+$("clearHistory").onclick=()=>{state.history=[];persist();renderHistory();renderRecent();toast("تم مسح سجل البحث")};
+async function runSearch(q,region,days){
+  q=(q||"").trim();if(!q){toast("اكتب المسمى الوظيفي أولًا");return}
+  recordSearch(q,region,days);$("resultQuery").value=q;$("resultRegion").value=region||"";$("resultDays").value=days||"7";$("resultsTitle").textContent="نتائج: "+q;setPage("search");
+  if(state.searchController)state.searchController.abort();
+  state.searchController=new AbortController();
+  $("jobsList").innerHTML='<div class="empty">جارٍ البحث عن الوظائف…</div>';
+  if(!JOBS_API_URL){$("jobsList").innerHTML='<div class="empty"><b>مصدر الوظائف غير مربوط بعد</b><br>واجهة البرنامج جاهزة، لكن البحث الحقيقي يحتاج ربط API يجمع الإعلانات من مصادر موثوقة. ضع رابط الخادم في JOBS_API_URL بعد تجهيزه.<br><br>لن نعرض بيانات تجريبية على أنها وظائف حقيقية.</div>';$("resultsCount").textContent="بانتظار ربط المصدر";return}
+  try{
+    const url=new URL(JOBS_API_URL);url.searchParams.set("q",q);url.searchParams.set("region",region||"");url.searchParams.set("days",String(days||7));
+    const res=await fetch(url,{signal:state.searchController.signal,headers:{"Accept":"application/json"}});
+    if(!res.ok)throw new Error("تعذر جلب النتائج ("+res.status+")");
+    const data=await res.json();state.jobs=Array.isArray(data)?data:(data.jobs||[]);
+    renderJobs();
+    if(state.user&&state.db){const {collection,addDoc,serverTimestamp}=state.firebase.fs;await addDoc(collection(state.db,"users",state.user.uid,"searchHistory"),{q,region,days,createdAt:serverTimestamp()}).catch(()=>{});}
+  }catch(e){if(e.name==="AbortError")return;$("jobsList").innerHTML='<div class="empty">تعذر الاتصال بمصدر الوظائف. تحقق من الإنترنت أو جرّب مرة أخرى.<br>'+esc(e.message)+'</div>';$("resultsCount").textContent="خطأ في الاتصال"}
+}
+$("homeSearch").onclick=()=>runSearch($("homeQuery").value,$("homeRegion").value,$("homeDays").value);
+$("resultSearch").onclick=()=>runSearch($("resultQuery").value,$("resultRegion").value,$("resultDays").value);
+$("homeQuery").addEventListener("keydown",e=>{if(e.key==="Enter")$("homeSearch").click()});
+function showJob(job){
+  if(!job)return;state.selectedJob=job;
+  $("detailTitle").textContent=job.title||"تفاصيل الوظيفة";
+  $("detailContent").innerHTML=`<div class="jobtitle">${esc(job.title||"")}</div><p class="muted">${esc(job.company||"")} · ${esc(job.location||"")}</p>
+    <div class="jobmeta"><span>${iconClock}${esc(job.postedAt||job.date||"تاريخ غير متاح")}</span></div>
+    <hr><p style="line-height:1.9">${esc(job.description||"لا يوجد وصف إضافي منشور لهذه الوظيفة.")}</p>
+    ${job.salary?`<p><b>الراتب:</b> ${esc(job.salary)}</p>`:""}
+    ${job.url?`<p><a href="${esc(job.url)}" target="_blank" rel="noopener">فتح إعلان الوظيفة الأصلي</a></p>`:""}
+    <button class="btn full" id="detailApply" ${job.email||job.contactEmail?"":"disabled"}>${job.email||job.contactEmail?"تجهيز مسودة التقديم بالبريد":"لا يوجد بريد توظيف معلن"}</button>`;
+  $("detailApply").onclick=()=>applyJob(job);openModal("detailModal");
+}
+async function applyJob(job){
+  const email=job?.email||job?.contactEmail;
+  if(!email){toast("لا يوجد بريد توظيف معلن لهذه الشركة");return}
+  const cv=await getCV();
+  if(!cv){toast("ارفع سيرتك الذاتية أولًا من صفحة حسابي");closeModal("detailModal");setPage("profile");return}
+  if(!state.gmailToken){toast("اربط Gmail أولًا من صفحة حسابي لإنشاء مسودة وإرفاق CV");closeModal("detailModal");setPage("profile");return}
+  try{
+    const subject="طلب توظيف – "+(job.title||"");
+    const body="السلام عليكم،\n\nأرفق لكم سيرتي الذاتية للتقدم على وظيفة "+(job.title||"المعلنة")+".\nأرجو التكرم بالاطلاع عليها، وشكرًا لكم.\n\nمع التحية";
+    await createGmailDraft(email,subject,body,cv);
+    closeModal("detailModal");toast("تم إنشاء مسودة Gmail مع السيرة الذاتية. راجعها قبل الإرسال.");
+    window.open("https://mail.google.com/mail/u/0/#drafts","_blank","noopener");
+  }catch(e){toast("تعذر إنشاء المسودة: "+e.message)}
+}
+
+/* Local CV storage (IndexedDB) */
+const DB_NAME="109C4Local",DB_STORE="files";
+function openLocalDB(){return new Promise((resolve,reject)=>{const req=indexedDB.open(DB_NAME,1);req.onupgradeneeded=()=>req.result.createObjectStore(DB_STORE);req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
+async function putCV(file){const db=await openLocalDB();return new Promise((resolve,reject)=>{const tx=db.transaction(DB_STORE,"readwrite");tx.objectStore(DB_STORE).put(file,"cv");tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error)})}
+async function getCV(){const db=await openLocalDB();return new Promise((resolve,reject)=>{const req=db.transaction(DB_STORE).objectStore(DB_STORE).get("cv");req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error)})}
+$("cvFile").onchange=()=>{state.selectedCV=$("cvFile").files[0]||null;$("cvName").textContent=state.selectedCV?state.selectedCV.name:"لم يتم اختيار ملف بعد"};
+$("saveCvBtn").onclick=async()=>{
+  const file=state.selectedCV;if(!file){toast("اختر ملف السيرة الذاتية أولًا");return}
+  if(file.size>8*1024*1024){toast("حجم الملف أكبر من 8 ميغابايت");return}
+  try{
+    await putCV(file);
+    localStorage.setItem("109c4_cv_name",file.name);
+    $("cvName").textContent=file.name;
+    $("cvHint").textContent="تم حفظ السيرة الذاتية على هذا الجهاز.";
+    if(state.user&&state.storage){
+      try{await saveCVToCloud(file);$("cvHint").textContent="تم حفظ السيرة الذاتية على الجهاز والسحابة."}
+      catch(cloudError){$("cvHint").textContent="حُفظت محليًا، لكن تعذر رفعها للسحابة. تحقق من إعدادات Firebase Storage."}
+    }
+    updateStats();toast("تم حفظ السيرة الذاتية")
+  }catch(e){toast("تعذر حفظ الملف على الجهاز")}
+};
+
+/* Firebase optional cloud account and storage */
+const firebaseConfigured=FIREBASE_CONFIG.apiKey!=="YOUR_FIREBASE_API_KEY"&&FIREBASE_CONFIG.projectId!=="YOUR_PROJECT_ID";
+async function initFirebase(){
+  if(!firebaseConfigured)return;
+  try{
+    const appMod=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js");
+    const authMod=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
+    const fsMod=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
+    const stMod=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js");
+    const app=appMod.initializeApp(FIREBASE_CONFIG);state.auth=authMod.getAuth(app);state.db=fsMod.getFirestore(app);state.storage=stMod.getStorage(app);
+    state.firebase={auth:authMod,fs:fsMod,storage:stMod};
+    authMod.onAuthStateChanged(state.auth,async user=>{state.user=user;refreshAuthUI();if(user)await syncFavoritesToCloud()});
+  }catch(e){toast("تعذر تهيئة Firebase. راجع الإعدادات.")}
+}
+function refreshAuthUI(){
+  const signed=!!state.user;$("authPanel").style.display=signed?"none":"block";$("signedInPanel").style.display=signed?"block":"none";
+  if(signed){$("userEmail").textContent=state.user.email||"حساب Google";$("avatarLetter").textContent=(state.user.email||"م").charAt(0).toUpperCase()}
+}
+async function loginOrRegister(register){
+  if(!state.auth){toast("أضف إعدادات Firebase أولًا لتفعيل الحسابات الحقيقية");return}
+  const email=$("authEmail").value.trim(),password=$("authPassword").value;
+  if(!email||password.length<6){toast("أدخل بريدًا صحيحًا وكلمة مرور من 6 أحرف على الأقل");return}
+  try{
+    const a=state.firebase.auth;
+    if(register)await a.createUserWithEmailAndPassword(state.auth,email,password);
+    else await a.signInWithEmailAndPassword(state.auth,email,password);
+    toast(register?"تم إنشاء الحساب":"تم تسجيل الدخول");
+  }catch(e){toast(e.message||"تعذر تسجيل الدخول")}
+}
+$("loginBtn").onclick=()=>loginOrRegister(false);
+$("registerBtn").onclick=()=>loginOrRegister(true);
+$("signOutBtn").onclick=async()=>{if(state.auth)await state.firebase.auth.signOut(state.auth);state.user=null;refreshAuthUI();toast("تم تسجيل الخروج")};
+$("googleBtn").onclick=async()=>{
+  if(!state.auth){toast("أضف إعدادات Firebase أولًا");return}
+  try{const provider=new state.firebase.auth.GoogleAuthProvider();await state.firebase.auth.signInWithPopup(state.auth,provider);toast("تم تسجيل الدخول بواسطة Google")}
+  catch(e){toast("تعذر فتح Google داخل هذه البيئة. قد نحتاج إعداد تسجيل الدخول عبر المتصفح الخارجي.")}
+};
+async function syncFavoritesToCloud(){
+  if(!state.user||!state.db)return;
+  const fs=state.firebase.fs;
+  try{
+    const favoritesRef=fs.doc(state.db,"users",state.user.uid,"private","favorites");
+    const remote=await fs.getDoc(favoritesRef);
+    if(remote.exists()){
+      const cloudItems=remote.data().items||[];
+      const merged=new Map();
+      [...cloudItems,...state.favorites].forEach(item=>merged.set(jobId(item),item));
+      state.favorites=[...merged.values()];
+      localStorage.setItem("109c4_favorites",JSON.stringify(state.favorites));
+      updateStats();renderFavorites();
+    }
+    await fs.setDoc(fs.doc(state.db,"users",state.user.uid),{email:state.user.email||"",updatedAt:fs.serverTimestamp()},{merge:true});
+    await fs.setDoc(favoritesRef,{items:state.favorites,updatedAt:fs.serverTimestamp()},{merge:true});
+  }catch(e){toast("تعذر مزامنة المفضلة سحابيًا")}
+}
+async function saveCVToCloud(file){
+  if(!state.user||!state.storage)return;
+  const st=state.firebase.storage,fs=state.firebase.fs;
+  const ref=st.ref(state.storage,"users/"+state.user.uid+"/cv/"+file.name);
+  await st.uploadBytes(ref,file);
+  const url=await st.getDownloadURL(ref);
+  await fs.setDoc(fs.doc(state.db,"users",state.user.uid),{cvName:file.name,cvURL:url,updatedAt:fs.serverTimestamp()},{merge:true});
+}
+
+/* Gmail OAuth: configure an authorized HTTPS origin and enable Gmail API. */
+let googleTokenClient=null;
+function connectGmail(){
+  if(GOOGLE_OAUTH_CLIENT_ID==="YOUR_GOOGLE_OAUTH_CLIENT_ID"){toast("ضع Google OAuth Client ID بعد تسجيل نطاق HTTPS وتفعيل Gmail API");return}
+  if(!window.google?.accounts?.oauth2){toast("خدمة Google OAuth لم تُحمّل. تحقق من الاتصال");return}
+  googleTokenClient=window.google.accounts.oauth2.initTokenClient({
+    client_id:GOOGLE_OAUTH_CLIENT_ID,
+    scope:"https://www.googleapis.com/auth/gmail.compose",
+    callback:(tokenResponse)=>{
+      if(tokenResponse.error){toast("لم تتم الموافقة على ربط Gmail");return}
+      state.gmailToken=tokenResponse.access_token;toast("تم ربط Gmail. ستُنشأ مسودات فقط ولن تُرسل تلقائيًا.");
+    }
+  });
+  googleTokenClient.requestAccessToken({prompt:"consent"});
+}
+$("connectGmail").onclick=connectGmail;
+function bytesToBase64(bytes){
+  let binary="";const chunk=0x8000;
+  for(let i=0;i<bytes.length;i+=chunk)binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));
+  return btoa(binary);
+}
+function bytesToBase64Url(bytes){
+  return bytesToBase64(bytes).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+async function createGmailDraft(to,subject,body,file){
+  if(!state.gmailToken)throw new Error("اربط Gmail أولًا");
+  const boundary="109C4_"+Math.random().toString(36).slice(2);
+  const encodedSubject="=?UTF-8?B?"+btoa(unescape(encodeURIComponent(subject)))+"?=";
+  const fileBytes=new Uint8Array(await file.arrayBuffer());
+  const fileBase64=bytesToBase64(fileBytes);
+  const mime=[
+    "To: "+to,
+    "Subject: "+encodedSubject,
+    "MIME-Version: 1.0",
+    'Content-Type: multipart/mixed; boundary="'+boundary+'"',
+    "",
+    "--"+boundary,
+    'Content-Type: text/plain; charset="UTF-8"',
+    "Content-Transfer-Encoding: 8bit",
+    "",
+    body,
+    "--"+boundary,
+    'Content-Type: '+(file.type||"application/octet-stream")+'; name="'+file.name.replace(/"/g,"")+'"',
+    'Content-Disposition: attachment; filename="'+file.name.replace(/"/g,"")+'"',
+    "Content-Transfer-Encoding: base64",
+    "",
+    fileBase64,
+    "--"+boundary+"--",
+    ""
+  ].join("\r\n");
+  const raw=bytesToBase64Url(new TextEncoder().encode(mime));
+  const res=await fetch("https://gmail.googleapis.com/gmail/v1/users/me/drafts",{method:"POST",headers:{"Authorization":"Bearer "+state.gmailToken,"Content-Type":"application/json"},body:JSON.stringify({message:{raw}})});
+  if(!res.ok){const data=await res.json().catch(()=>({}));throw new Error(data.error?.message||"Gmail API "+res.status)}
+  return res.json();
+}
+$("homeQuery").addEventListener("input",()=>{});
+$("resultQuery").addEventListener("keydown",e=>{if(e.key==="Enter")$("resultSearch").click()});
+window.addEventListener("beforeunload",()=>{if(state.searchController)state.searchController.abort()});
+initFirebase();
+updateStats();renderRecent();refreshAuthUI();
+</script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</body>
+</html>
